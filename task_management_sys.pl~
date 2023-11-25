@@ -30,3 +30,13 @@ displayUserTasks(User):-
     fail.
 displayUserTasks(_).
 
+displayCompleteTasks(Status):-
+    task(Id,Desc,User,Status),
+    writeln("Id"+Id),
+    writeln("Desc"+Desc),
+    writeln("User"+User),
+    writeln("Status"+Status),
+    nl,
+    fail.
+displayCompleteTasks(_).
+
