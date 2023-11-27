@@ -1,4 +1,3 @@
-
 ligne(1, bus,
     [
         [arret1, 5],
@@ -117,16 +116,13 @@ afficheStations(_Lignes) :-
 interfaceUtilisateur :-
     write('Stations desservies par les transports publics:'), nl,
     afficheStations(_), nl,
-    write('Choisissez une station de départ: '),
+    write('Choisissez une station de dÃ©part: '),
     read_line_to_string(user_input, StationDepart), % Read input as a string
     nl,
-    write('Choisissez une station d\'arrivée: '),
-    read_line_to_string(user_input, StationArrivee), % Read input as a string
+    write('Choisissez une station d\'arrivÃ©e: '),
+    read_line_to_string(user_input, StationArrivee), % Read input as string
     nl,
-    % Add other options if necessary
-    % Use the defined predicates to find the route
-
-    % Placeholder logic to find the route
+    find the route
     (ligtard(StationDepart, StationArrivee, Ligne, Horaire) ; ligtot(StationDepart, StationArrivee, Ligne, Horaire)),
-    write('Trajet trouvé: '), write([StationDepart, 'to', StationArrivee, 'via', Ligne, 'at', Horaire]).
+    write('Trajet trouvÃ©: '), write([StationDepart, 'to', StationArrivee, 'via', Ligne, 'at', Horaire]).
 
