@@ -122,7 +122,7 @@ interfaceUtilisateur :-
     write('Choisissez une station d\'arrivée: '),
     read_line_to_string(user_input, StationArrivee), % Read input as string
     nl,
-    find the route
+    % find the route
     (ligtard(StationDepart, StationArrivee, Ligne, Horaire) ; ligtot(StationDepart, StationArrivee, Ligne, Horaire)),
     write('Trajet trouvé: '), write([StationDepart, 'to', StationArrivee, 'via', Ligne, 'at', Horaire]).
 
