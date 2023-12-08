@@ -49,37 +49,43 @@ lig(Arret1, Arret2, Ligne) :-
     nth1(Index1, Arrets, [Arret1, _]),
     nth1(Index2, Arrets, [Arret2, _]),
     Index1 < Index2.
+oneOf(Index1, Index2, List, Element1, Element2) :-
+    (member([Element1, _], List), member([Element2, _], List),
+     (nth1(Index1, List, [Element1, _]), nth1(Index2, List, [Element2, _]), Index1 < Index2) ;
+     (nth1(Index2, List, [Element1, _]), nth1(Index1, List, [Element2, _]), Index2 < Index1)).
+
 % function to check when the line leaves the earliest from one stop to
 % another
 ligtot(Arret1, Arret2, Ligne, Horaire) :-
-    ligne(Ligne, _, Arrets, [Depart, Intervalle, _DernierDepart], _),
+    ligne(Ligne, _, Arrets, [Depart, Intervalle, DernierDepart], _),
     member([Arret1, _], Arrets),
     member([Arret2, _], Arrets),
-    nth1(Index1, Arrets, [Arret1, _]),
-    nth1(Index2, Arrets, [Arret2, _]),
-    Index1 < Index2,
+    oneOf(Index1, Index2, Arrets, Arret1, Arret2),
     addh(Depart, Intervalle, NextDepart),
-    addh(NextDepart, -Intervalle, LastPossibleDepart),
+    addh(NextDepart, -Intervalle, _LastPossibleDepart),
+    addh(DernierDepart, -Intervalle, LastPossibleDepartRev),
     addh(Horaire, 0, HorairePlus0),
     addh(Horaire, 1439, HorairePlus1Day),
-    addh(LastPossibleDepart, 0, LastPossibleDepartPlus0),
-    (HorairePlus0 @=< NextDepart ; HorairePlus1Day @>= LastPossibleDepartPlus0).
+    (HorairePlus0 @=< NextDepart ; HorairePlus0 > 24) ;
+    (HorairePlus0 @=< LastPossibleDepartRev ; HorairePlus1Day @>= DernierDepart),
+    (Index1 == Index2 ; Index1 < Index2).
+
 
 % function to check when the line leaves the latest from one stop to
 % another
 ligtard(Arret1, Arret2, Ligne, Horaire) :-
-    ligne(Ligne, _, Arrets, [_, Intervalle, _], Retour),
+    ligne(Ligne, _, Arrets, [_, Intervalle, DernierDepart], _Retour),
     member([Arret1, _], Arrets),
     member([Arret2, _], Arrets),
-    nth1(Index1, Arrets, [Arret1, _]),
-    nth1(Index2, Arrets, [Arret2, _]),
-    Index1 < Index2,
-    addh(Retour, 0, DernierDepart),
-    addh(DernierDepart, -Intervalle, FirstPossibleDepart),
+    oneOf(Index1, Index2, Arrets, Arret1, Arret2),
+    addh(DernierDepart, 0, LastPossibleDepart),
+    addh(LastPossibleDepart, -Intervalle, FirstPossibleDepart),
     addh(Horaire, 0, HorairePlus0),
     addh(Horaire, 1439, HorairePlus1Day),
     addh(FirstPossibleDepart, 0, _FirstPossibleDepartPlus0),
-    (HorairePlus0 @>= FirstPossibleDepart ; HorairePlus1Day @=< DernierDepart).
+    (HorairePlus0 @>= FirstPossibleDepart ; HorairePlus1Day @=< DernierDepart),
+    (Index1 == Index2 ; Index1 < Index2).
+
 
 itinTot(Arret1, Arret2, Horaire, [Arret1, Horaire, Arret2]) :-
     ligtot(Arret1, Arret2, _, Horaire).
@@ -114,15 +120,24 @@ afficheStations(_Lignes) :-
     ).
 
 interfaceUtilisateur :-
-    write('Stations desservies par les transports publics:'), nl,
-    afficheStations(_), nl,
-    write('Choisissez une station de départ: '),
-    read_line_to_string(user_input, StationDepart), % Read input as a string
-    nl,
-    write('Choisissez une station d\'arrivée: '),
-    read_line_to_string(user_input, StationArrivee), % Read input as string
-    nl,
-    % find the route
-    (ligtard(StationDepart, StationArrivee, Ligne, Horaire) ; ligtot(StationDepart, StationArrivee, Ligne, Horaire)),
-    write('Trajet trouvé: '), write([StationDepart, 'to', StationArrivee, 'via', Ligne, 'at', Horaire]).
+  write('Stations desservies par les transports publics:'), nl,
+  afficheStations(_), nl,
+  write('Choisissez une station de départ: '),
+  read_line_to_string(user_input, StationDepart),
+  nl,
+  write('Choisissez une station d\'arrivée: '),
+  read_line_to_string(user_input, StationArrivee),
+  nl,
+  write('Choisissez une ligne: '),
+  read_line_to_string(user_input, Ligne),
+  nl,
+  write('A quelle Heure: '),
+  read_line_to_string(user_input, Temps),
+  nl,
+  %departure time to a single integer
+  [Heure, Minute] = Temps,
+  TotalMinutes is Heure * 60 + Minute,
+  Departure is TotalMinutes,
 
+  (ligtard(StationDepart, StationArrivee, Ligne, Departure) ; ligtot(StationDepart, StationArrivee, Ligne, Departure)),
+  write('Trajet trouvé: '), write([StationDepart, 'to', StationArrivee, 'via', Ligne, 'at', Temps]).
