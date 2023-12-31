@@ -9,7 +9,7 @@ Prerequisites
 Running the Program
 1.Clone the Repository:
    
-   git clone https://github.com/your_username/public-transport-route-calculator.git
+   git clone https://github.com/DAVIDS4A/Prolog/Project_1/Calculation_of_Public_Transport_Routes.git
    
    
 2.Navigate to the Directory:
